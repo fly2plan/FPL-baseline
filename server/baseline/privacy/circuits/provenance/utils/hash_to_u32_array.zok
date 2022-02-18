@@ -1,0 +1,19 @@
+import "utils/pack/bool/unpack128" as unpack128
+import "utils/casts/bool_128_to_u32_4" as bool_to_u32
+
+def hash_to_u32_array(field[2] h) -> u32[8]:
+    bool[128] h0_bits = unpack128(h[0])
+    bool[128] h1_bits = unpack128(h[1])
+
+    u32[4] h0_u32 = bool_to_u32(h0_bits)
+    u32[4] h1_u32 = bool_to_u32(h1_bits)
+
+    u32[8] h_arr = [0; 8]
+
+    for u32 i in 0..4 do
+        h_arr[i] = h0_u32[i]
+        h_arr[i+4] = h1_u32[i]
+    endfor
+
+    return h_arr
+    

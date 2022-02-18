@@ -1,0 +1,28 @@
+import "hashes/sha256/512bitPacked" as sha256packed
+from "./types.zok" import FPLForm, HashedFPLForm, HashedFPLFormACK, Signature
+from "./utils/ASCIItoField.zok" import ASCIItoFieldu8
+from "./provenance/provenance.zok" import hashProvenance
+
+from "./fpl" import isFPLFormHashWithOwner
+
+const u8[3] ACK = [65, 67, 75]
+
+def isFPLFormACKWithOwner(FPLForm fpl, HashedFPLForm hfpl, Signature sig_ao, field[2] pk_ao, HashedFPLFormACK hfplack, Signature sig_nm, field[2] pk_nm) -> bool:
+
+    assert(isFPLFormHashWithOwner(fpl, hfpl, sig_ao, pk_ao))
+
+    // Check if given signature is recovered by signing message with the private key corresponding
+    // to the provided public key, thereby proving that the owner of the private key has possession of the message
+    field[2] R = sig_nm.R
+    field S = sig_nm.S
+    assert(hashProvenance(R, S, pk_nm, hfplack))
+
+    // Check if hash of hashed fpl + 'ACK' is the same as input hash, hfplack
+    field[2] h = sha256packed([ASCIItoFieldu8::<3>(ACK), hfpl[0], hfpl[1], 0])
+    assert(h[0] == hfplack[0] && h[1] == hfplack[1])
+
+    return true
+
+def main(private FPLForm fpl, private HashedFPLForm hfpl, private Signature sig_ao, public field[2] pk_ao, private HashedFPLFormACK hfplack, private Signature sig_nm, public field[2] pk_nm):
+    assert(isFPLFormACKWithOwner(fpl, hfpl, sig_ao, pk_ao, hfplack, sig_nm, pk_nm))
+    return

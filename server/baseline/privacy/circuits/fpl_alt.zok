@@ -1,0 +1,223 @@
+import "hashes/sha256/512bitPacked" as sha256packed
+import "utils/casts/u8_to_bits" as u8_to_bits
+import "utils/casts/u16_to_bits" as u16_to_bits
+import "utils/casts/u32_to_bits" as u32_to_bits
+import "utils/casts/u64_to_bits" as u64_to_bits
+import "utils/pack/bool/pack128" as pack128
+from "./types_alt.zok" import FPLForm, HashedFPLForm, Signature
+from "./provenance/provenance" import hashProvenance
+
+def FillHashPreimage<F, T, N, H>(bool[N] arr, bool[H] hpre) -> bool[H]:
+    for u32 i in F..T do
+        hpre[i] = arr[i-F]
+    endfor
+    return hpre
+
+def HashFPLForm(FPLForm fpl) -> field[2]:
+
+bool[128] h1_a_bits = [false; 128]
+    h1_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.ai), h1_a_bits)
+    h1_a_bits = FillHashPreimage::<64,72,8,128>(u8_to_bits(fpl.fr), h1_a_bits)
+    h1_a_bits = FillHashPreimage::<72,80,8,128>(u8_to_bits(fpl.tof), h1_a_bits)
+    h1_a_bits = FillHashPreimage::<80,96,16,128>(u16_to_bits(fpl.noa), h1_a_bits)
+    h1_a_bits = FillHashPreimage::<96,128,32,128>(u32_to_bits(fpl.toa), h1_a_bits)
+    field h1_a = pack128(h1_a_bits)
+    
+    bool[128] h1_b_bits = [false; 128]
+    h1_b_bits = FillHashPreimage::<0,8,8,128>(u8_to_bits(fpl.wtc), h1_b_bits)
+    h1_b_bits = FillHashPreimage::<8,24,16,128>(u16_to_bits(fpl.eandc.rc_n_aae.s), h1_b_bits)
+    h1_b_bits = FillHashPreimage::<24,32,8,128>(u8_to_bits(fpl.eandc.surveillance.s), h1_b_bits)
+    h1_b_bits = FillHashPreimage::<32,48,16,128>(u16_to_bits(fpl.eandc.surveillance.ssr.mode_a_c.a), h1_b_bits)
+    h1_b_bits = FillHashPreimage::<48,112,64,128>(u64_to_bits(fpl.eandc.surveillance.ssr.mode_s.a), h1_b_bits)
+    field h1_b = pack128(h1_b_bits)
+    
+    bool[128] h1_c_bits = [false; 128]
+    h1_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.eandc.surveillance.ads.b.a[0]), h1_c_bits)
+    h1_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.eandc.surveillance.ads.b.a[1]), h1_c_bits)
+    field h1_c = pack128(h1_c_bits)
+    
+    bool[128] h1_d_bits = [false; 128]
+    h1_d_bits = FillHashPreimage::<0,32,32,128>(u32_to_bits(fpl.eandc.surveillance.ads.c.a), h1_d_bits)
+    h1_d_bits = FillHashPreimage::<32,96,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[0]), h1_d_bits)
+    h1_d_bits = FillHashPreimage::<96,128,32,128>(u32_to_bits(fpl.t), h1_d_bits)
+    field h1_d = pack128(h1_d_bits)
+    
+    bool[128] h2_a_bits = [false; 128]
+    h2_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[1]), h2_a_bits)
+    h2_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[2]), h2_a_bits)
+    field h2_a = pack128(h2_a_bits)
+    
+    bool[128] h2_b_bits = [false; 128]
+    h2_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[3]), h2_b_bits)
+    h2_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[4]), h2_b_bits)
+    field h2_b = pack128(h2_b_bits)
+    
+    bool[128] h2_c_bits = [false; 128]
+    h2_c_bits = FillHashPreimage::<0,32,32,128>(u32_to_bits(fpl.da), h2_c_bits)
+    h2_c_bits = FillHashPreimage::<32,64,32,128>(u32_to_bits(fpl.de), h2_c_bits)
+    h2_c_bits = FillHashPreimage::<64,96,32,128>(u32_to_bits(fpl.teet), h2_c_bits)
+    h2_c_bits = FillHashPreimage::<96,128,32,128>(u32_to_bits(fpl.ada), h2_c_bits)
+    field h2_c = pack128(h2_c_bits)
+    
+    bool[128] h2_d_bits = [false; 128]
+    h2_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.cs), h2_d_bits)
+    h2_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.cl), h2_d_bits)
+    field h2_d = pack128(h2_d_bits)
+    
+    bool[128] h3_a_bits = [false; 128]
+    h3_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[0]), h3_a_bits)
+    h3_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[1]), h3_a_bits)
+    field h3_a = pack128(h3_a_bits)
+    
+    bool[128] h3_b_bits = [false; 128]
+    h3_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[2]), h3_b_bits)
+    h3_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[3]), h3_b_bits)
+    field h3_b = pack128(h3_b_bits)
+    
+    bool[128] h3_c_bits = [false; 128]
+    h3_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[4]), h3_c_bits)
+    h3_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[5]), h3_c_bits)
+    field h3_c = pack128(h3_c_bits)
+    
+    bool[128] h3_d_bits = [false; 128]
+    h3_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[6]), h3_d_bits)
+    h3_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[7]), h3_d_bits)
+    field h3_d = pack128(h3_d_bits)
+    
+    bool[128] h4_a_bits = [false; 128]
+    h4_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[8]), h4_a_bits)
+    h4_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[9]), h4_a_bits)
+    field h4_a = pack128(h4_a_bits)
+    
+    bool[128] h4_b_bits = [false; 128]
+    h4_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[10]), h4_b_bits)
+    h4_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[11]), h4_b_bits)
+    field h4_b = pack128(h4_b_bits)
+    
+    bool[128] h4_c_bits = [false; 128]
+    h4_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[12]), h4_c_bits)
+    h4_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[13]), h4_c_bits)
+    field h4_c = pack128(h4_c_bits)
+    
+    bool[128] h4_d_bits = [false; 128]
+    h4_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.r[14]), h4_d_bits)
+    h4_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.r[15]), h4_d_bits)
+    field h4_d = pack128(h4_d_bits)
+    
+    bool[128] h5_a_bits = [false; 128]
+    h5_a_bits = FillHashPreimage::<0,32,32,128>(u32_to_bits(fpl.adas[0]), h5_a_bits)
+    h5_a_bits = FillHashPreimage::<32,64,32,128>(u32_to_bits(fpl.adas[1]), h5_a_bits)
+    h5_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.oi[0]), h5_a_bits)
+    field h5_a = pack128(h5_a_bits)
+    
+    bool[128] h5_b_bits = [false; 128]
+    h5_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.oi[1]), h5_b_bits)
+    h5_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.oi[2]), h5_b_bits)
+    field h5_b = pack128(h5_b_bits)
+    
+    bool[128] h5_c_bits = [false; 128]
+    h5_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.oi[3]), h5_c_bits)
+    h5_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.oi[4]), h5_c_bits)
+    field h5_c = pack128(h5_c_bits)
+    
+    bool[128] h5_d_bits = [false; 128]
+    h5_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.oi[5]), h5_d_bits)
+    h5_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.oi[6]), h5_d_bits)
+    field h5_d = pack128(h5_d_bits)
+    
+    bool[128] h6_a_bits = [false; 128]
+    h6_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.oi[7]), h6_a_bits)
+    h6_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.e), h6_a_bits)
+    field h6_a = pack128(h6_a_bits)
+    
+    bool[128] h6_b_bits = [false; 128]
+    h6_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.pob), h6_b_bits)
+    h6_b_bits = FillHashPreimage::<64,96,32,128>(u32_to_bits(fpl.er), h6_b_bits)
+    h6_b_bits = FillHashPreimage::<96,128,32,128>(u32_to_bits(fpl.se), h6_b_bits)
+    field h6_b = pack128(h6_b_bits)
+    
+    bool[128] h6_c_bits = [false; 128]
+    h6_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.j[0]), h6_c_bits)
+    h6_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.j[1]), h6_c_bits)
+    field h6_c = pack128(h6_c_bits)
+    
+    bool[128] h6_d_bits = [false; 128]
+    h6_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.d[0]), h6_d_bits)
+    h6_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.d[1]), h6_d_bits)
+    field h6_d = pack128(h6_d_bits)
+    
+    bool[128] h7_a_bits = [false; 128]
+    h7_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.d[2]), h7_a_bits)
+    h7_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.d[3]), h7_a_bits)
+    field h7_a = pack128(h7_a_bits)
+    
+    bool[128] h7_b_bits = [false; 128]
+    h7_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.acm[0]), h7_b_bits)
+    h7_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.acm[1]), h7_b_bits)
+    field h7_b = pack128(h7_b_bits)
+    
+    bool[128] h7_c_bits = [false; 128]
+    h7_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.acm[2]), h7_c_bits)
+    h7_c_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.acm[3]), h7_c_bits)
+    field h7_c = pack128(h7_c_bits)
+    
+    bool[128] h7_d_bits = [false; 128]
+    h7_d_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.re[0]), h7_d_bits)
+    h7_d_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.re[1]), h7_d_bits)
+    field h7_d = pack128(h7_d_bits)
+    
+    bool[128] h8_a_bits = [false; 128]
+    h8_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.re[2]), h8_a_bits)
+    h8_a_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.re[3]), h8_a_bits)
+    field h8_a = pack128(h8_a_bits)
+    
+    bool[128] h8_b_bits = [false; 128]
+    h8_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.pn[0]), h8_b_bits)
+    h8_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.pn[1]), h8_b_bits)
+    field h8_b = pack128(h8_b_bits)
+    
+    field[2] h1 = sha256packed([h1_a, h1_b, h1_c, h1_d])
+    field[2] h2 = sha256packed([h2_a, h2_b, h2_c, h2_d])
+    field[2] h3 = sha256packed([h3_a, h3_b, h3_c, h3_d])
+    field[2] h4 = sha256packed([h4_a, h4_b, h4_c, h4_d])
+    field[2] h5 = sha256packed([h5_a, h5_b, h5_c, h5_d])
+    field[2] h6 = sha256packed([h6_a, h6_b, h6_c, h6_d])
+    field[2] h7 = sha256packed([h7_a, h7_b, h7_c, h7_d])
+    field[2] h8 = sha256packed([h8_a, h8_b, 0, 0])
+
+    field[2] h12 = sha256packed([h1[0], h1[1], h2[0], h2[1]])
+    field[2] h34 = sha256packed([h3[0], h3[1], h4[0], h4[1]])
+    field[2] h56 = sha256packed([h5[0], h5[1], h6[0], h6[1]])
+    field[2] h78 = sha256packed([h7[0], h7[1], h8[0], h8[1]])
+
+    field[2] h1234 = sha256packed([h12[0], h12[1], h34[0], h34[1]])
+    field[2] h5678 = sha256packed([h56[0], h56[1], h78[0], h78[1]])
+
+    return sha256packed([h1234[0], h1234[1], h5678[0], h5678[1]])
+    
+
+def isFPLFormHashWithOwner(FPLForm fpl, HashedFPLForm hfpl, Signature sig_ao, field[2] pk_ao) -> bool:
+
+    // Check if given signature is recovered by signing hashed fpl form with the private key corresponding
+    // to the provided public key, thereby proving that the owner of the private key has possession of the hashed fpl form
+    field[2] R = sig_ao.R
+    field S = sig_ao.S
+    assert(hashProvenance(R, S, pk_ao, hfpl))
+
+    // Check if hash of fpl is the same as input hash
+    field[2] h = HashFPLForm(fpl)
+    assert(h[0] == hfpl[0] && h[1] == hfpl[1])
+
+    //validate FPL
+    //assert(validateFPL(AircraftIdentifer a, FlightRule b, TypeOfFlight c))
+
+    return true
+
+//Compile throws error due to unconstrained variables (meaning unused private variables)
+//- possibly exclusively because of sig
+//- not because of fpl
+//- not because of hfpl
+
+def main(private FPLForm fpl, private HashedFPLForm hfpl, private Signature sig, public field[2] pk_ao):
+    assert(isFPLFormHashWithOwner(fpl, hfpl, sig, pk_ao))
+    return 

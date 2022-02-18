@@ -1,0 +1,15 @@
+// 8. FLIGHT RULES (IFR, VFR or combination of the two) and TYPE OF FLIGHT (Scheduled Air Service, General Aviation etc.)
+// For the moment require that the flight operates under IFR (since it is to be automatically processed by the IFPS)
+
+from "../types" import FlightRule, TypeOfFlight
+from "../utils/ASCIItoField" import ASCIItoFieldu8
+//from "../utils/ASCIItoDecimal" import I', 'S', 'N', 'G', 'M', 'X'
+
+// Assume that the 'letter' is decimal format of ASCII representation
+def isIFR(FlightRule letter) -> bool:
+    field joinedLetter = ASCIItoFieldu8(letter)
+    return joinedLetter == 73
+
+def validTypeOfFlight(TypeOfFlight letter) -> bool:
+    field joinedLetter = ASCIItoFieldu8(letter)
+    return joinedLetter == 83 || joinedLetter == 78 || joinedLetter == 71 || joinedLetter == 77 || joinedLetter == 88

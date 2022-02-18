@@ -1,0 +1,22 @@
+// General rules
+// a) USE BLOCK CAPITALS AT ALL TIMES;
+// b) Adhere to the prescribed formats and manner of specifying data;
+// c) Complete Items 7 to 18 as indicated in the following instructions;
+// d) Complete also Item 19 as indicated, to facilitate alerting of SAR Services;
+// e) Areas preceding Item 7 are to be completed by ATC and COM services, unless the
+// responsibility for originating FPL messages has been delegated;
+// f) Commence inserting data in the first space provided. (Convention may dictate
+// that the first figure is a zero e.g. 00 2 to indicate two POB in Item 19). Where
+// excess space is available, leave unused spaces blank;
+// g) Do not introduce obliques or spaces where they are not required;
+// h) Insert all clock times in 4 figures, UTC;
+// i) Insert all estimated elapsed times in 4 figures (hours and minutes); and
+// j) Item numbers on the form are not consecutive.
+// (They correspond to Item Type numbers in standard ATS messages).
+
+from "../types" import AircraftIdentifer, FlightRule, TypeOfFlight
+from "./AircraftIdentification" import validAircraftIdentifer
+from "./FRandTofF" import isIFR, validTypeOfFlight
+
+def validFPL(public AircraftIdentifer a, public FlightRule b, public TypeOfFlight c) -> bool:
+    return validAircraftIdentifer(a) && isIFR(b) && validTypeOfFlight(c)

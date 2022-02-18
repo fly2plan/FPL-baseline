@@ -1,0 +1,165 @@
+type HashSegment = u8[38]
+
+// 7. AIRCRAFT IDENTIFICATION
+// Assume that the aircraft identifier has been decomposed into ASCII, the ASCII concatenated, and then split at each integer to form an array of 14 digits
+type AircraftIdentifer = u8[14]
+
+// 8. FLIGHT RULES (IFR, VFR or combination of the two) and TYPE OF FLIGHT (Scheduled Air Service, General Aviation etc.)
+type FlightRule = u8[2]
+type TypeOfFlight = u8[2]
+
+// 9. NUMBER, TYPE OF AIRCRAFT, WAKE TURBULENCE CATEGORY
+type NumberOfAircraft = u8[4]
+type TypeOfAircraft = u8[8]
+type WakeTurbulenceCategory = u8[2]
+
+// 10. EQUIPMENT AND CAPABILITIES ( RADIO COMMUNICATION, NAVIGATION AND APPROACH AID EQUIPMENT AND CAPABILITIES, SURVEILLENCE EQUIPMENT)
+type Serviceable<N> = u8[N]
+type Available<N> = u8[N]
+
+struct C {
+    Available<8> a
+}
+
+struct B {
+    Available<24> a
+}
+
+struct ADS {
+    C c
+    B b
+}
+
+struct Mode_A_C {
+    Available<4> a
+}
+
+struct Mode_S {
+    Available<14> a
+}
+
+struct SSR {
+    Mode_A_C mode_a_c
+    Mode_S mode_s
+}
+
+struct Surveillance {
+    Serviceable<2> s
+    SSR ssr
+    ADS ads
+}
+
+struct RC_N_AAE {
+    Serviceable<4> s
+    Available<98> a
+}
+
+struct EquipmentAndCapabilites {
+    RC_N_AAE rc_n_aae
+    Surveillance surveillance
+}
+
+// 13. DEPARTURE AERODROME AND TIME (8 CHARACTERS)
+type Time = u8[8]
+type DepartureAerodrome = u8[8]
+
+// 15. CRUISING SPEED LEVEL AND ROUTE
+type CruisingSpeed = u8[10]
+type CruisingLevel = u8[10]
+
+// type ATSRouteDesignator u8[14]
+// type CurrentATSRouteDesignator ATSRouteDesignator
+// type NextATSRouteDesignator ATSRouteDesignator
+
+// type SignificantPoint u8[22]
+// type SignificantPoints SignificantPoint[5]
+
+// type SpeedOrLevelChange u8[42]
+// type SpeedOrLevelChanges SpeedOrLevelChange[5]
+
+// type FlightRuleChange u8[6]
+// type FlightRuleChanges FlightRuleChanges[5]
+
+// type CruiseClimb u8[56]
+// type CruiseClimbs CruiseClimb[5]
+
+// struct ATSRoute {
+//     CurrentATSRouteDesignator catsrd
+//     NextATSRouteDesignator natsrd
+//     SignificantPoints sp
+//     SpeedOrLevelChanges solc
+//     FlightRuleChanges flc
+// }
+
+//type Route ATSRoute[8] //hash of each 'ATSRoute' is a leaf of 3 height merkle tree?
+
+//Allow for a route of upto 304 characters
+type Route = u8[304] //HashSegment[8]
+
+// 16. DESTINATION, TOTAL ELAPSED TIME AND DESTINATION ALTERNATE AERODROMES
+type DestinationAerodrome = u8[8]
+type TotalEstimatedElapsedTime = u8[8]
+type AlternateDestinationAerodrome = u8[8]
+type AlternateDestinationAerodromes = AlternateDestinationAerodrome[2]
+
+// 18. OTHER INFORMATION
+type OtherInformation = u8[152] //HashSegment[4]
+
+// 19. SUPPLEMENTARY INFORMATION
+type Endurance = u8[12]
+type PersonsOnBoard = u8[10] //allow for hundreds of passengers
+type EmergencyRadio = u8[8] //precede letter to be crossed out by 'x'
+type SurvivalEquipment = u8[8] //precede letter to be crossed out by 'x'
+type Jackets = u8[20] //precede letters to be crossed out by 'x'
+type Dinghies = u8[76] //HashSegment[2] // precede letters to be crossed out by 'x' or do as otherwise
+type AircraftColourMarkings = u8[76] //HashSegment[2]
+type Remarks = u8[76] //HashSegment[2]
+type PilotName = u8[38] //HashSegment
+
+
+struct FPLForm {
+    AircraftIdentifer ai //14 h1
+    FlightRule fr //2 h1
+    TypeOfFlight tof //2 h1
+
+    NumberOfAircraft noa //4 h1
+    TypeOfAircraft toa //8 h1
+    WakeTurbulenceCategory wtc //2 h1
+
+    EquipmentAndCapabilites eandc //4 98 2 4 14 8 24 h1 | 98 h2
+
+    Time t //8 h1
+    DepartureAerodrome da //8 h1
+
+    CruisingSpeed cs //10 h1
+    CruisingLevel cl //10 h1
+
+    Route r //38 * 8 -> 304 h3 h4
+
+    DestinationAerodrome de //8 h1 
+    TotalEstimatedElapsedTime teet //8 h1
+    AlternateDestinationAerodrome ada //8 h1
+    AlternateDestinationAerodromes adas //8 * 2 h7
+    
+    OtherInformation oi //38*4 -> 152 h5
+
+    Endurance e //12 h7
+    PersonsOnBoard pob //10 h7
+    EmergencyRadio er //8 h7
+    SurvivalEquipment se //8 h7
+    Jackets j //20 h8
+
+    Dinghies d //38*2 -> 76 h6
+    AircraftColourMarkings acm //38*2 -> 76 h6
+
+    Remarks re //38*2 -> 76 h8
+    PilotName pn //38 h7
+}
+
+type HashedFPLForm = field[2]
+type HashedFPLFormACK = field[2]
+
+struct Signature {
+    field[2] R
+    field S
+}

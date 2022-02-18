@@ -1,0 +1,133 @@
+import "hashes/sha256/512bitPacked" as sha256packed
+from "./types.zok" import FPLForm, HashedFPLForm, Signature
+from "./utils/ASCIItoField.zok" import ASCIItoFieldu8
+from "./provenance/provenance" import hashProvenance
+
+def FillHashPreimage<F, T, N, H>(u8[N] arr, u8[H] hpre) -> u8[H]:
+    for u32 i in F..T do
+        hpre[i] = arr[i-F]
+    endfor
+    return hpre
+
+def HashFPLForm(FPLForm fpl) -> field[2]:
+    u8[148] h1pre = [0; 148]
+    h1pre = FillHashPreimage::<0,14,14,148>(fpl.ai, h1pre)
+    h1pre = FillHashPreimage::<14,16,2,148>(fpl.fr, h1pre)
+    h1pre = FillHashPreimage::<16,18,2,148>(fpl.tof, h1pre)
+    h1pre = FillHashPreimage::<18,22,4,148>(fpl.noa, h1pre)
+    h1pre = FillHashPreimage::<22,30,8,148>(fpl.toa, h1pre)
+    h1pre = FillHashPreimage::<30,32,2,148>(fpl.wtc, h1pre)
+    h1pre = FillHashPreimage::<32,36,4,148>(fpl.eandc.rc_n_aae.s, h1pre)
+    h1pre = FillHashPreimage::<36,38,2,148>(fpl.eandc.surveillance.s, h1pre)
+    h1pre = FillHashPreimage::<38,42,4,148>(fpl.eandc.surveillance.ssr.mode_a_c.a, h1pre)
+    h1pre = FillHashPreimage::<42,56,14,148>(fpl.eandc.surveillance.ssr.mode_s.a, h1pre)
+    h1pre = FillHashPreimage::<56,64,8,148>(fpl.eandc.surveillance.ads.c.a, h1pre)
+    h1pre = FillHashPreimage::<64,88,24,148>(fpl.eandc.surveillance.ads.b.a, h1pre)
+    h1pre = FillHashPreimage::<88,96,8,148>(fpl.t, h1pre)
+    h1pre = FillHashPreimage::<96,104,8,148>(fpl.da, h1pre)
+    h1pre = FillHashPreimage::<104,114,10,148>(fpl.cs, h1pre)
+    h1pre = FillHashPreimage::<114,124,10,148>(fpl.cl, h1pre)
+    h1pre = FillHashPreimage::<124,132,8,148>(fpl.de, h1pre)
+    h1pre = FillHashPreimage::<132,140,8,148>(fpl.teet, h1pre)
+    h1pre = FillHashPreimage::<140,148,8,148>(fpl.ada, h1pre)
+    field h1_a = ASCIItoFieldu8::<37>(h1pre[0..37])
+    field h1_b = ASCIItoFieldu8::<37>(h1pre[37..74])
+    field h1_c = ASCIItoFieldu8::<37>(h1pre[74..111])
+    field h1_d = ASCIItoFieldu8::<37>(h1pre[111..148])
+    field[2] h1 = sha256packed([h1_a, h1_b, h1_c, h1_d])
+
+    u8[98] h2pre = fpl.eandc.rc_n_aae.a[0..98]
+    field h2_a = ASCIItoFieldu8::<24>(h2pre[0..24])
+    field h2_b = ASCIItoFieldu8::<25>(h2pre[24..49])
+    field h2_c = ASCIItoFieldu8::<24>(h2pre[49..73])
+    field h2_d = ASCIItoFieldu8::<25>(h2pre[73..98])
+    field[2] h2 = sha256packed([h2_a, h2_b, h2_c, h2_d])
+
+    u8[152] h3pre = fpl.r[0..152]
+    field h3_a = ASCIItoFieldu8::<38>(h3pre[0..38])
+    field h3_b = ASCIItoFieldu8::<38>(h3pre[38..76])
+    field h3_c = ASCIItoFieldu8::<38>(h3pre[76..114])
+    field h3_d = ASCIItoFieldu8::<38>(h3pre[114..152])
+    field[2] h3 = sha256packed([h3_a, h3_b, h3_c, h3_d])
+
+    u8[152] h4pre = fpl.r[152..304]
+    field h4_a = ASCIItoFieldu8::<38>(h4pre[0..38])
+    field h4_b = ASCIItoFieldu8::<38>(h4pre[38..76])
+    field h4_c = ASCIItoFieldu8::<38>(h4pre[76..114])
+    field h4_d = ASCIItoFieldu8::<38>(h4pre[114..152])
+    field[2] h4 = sha256packed([h4_a, h4_b, h4_c, h4_d])
+
+    u8[152] h5pre = fpl.oi[0..152]
+    field h5_a = ASCIItoFieldu8::<38>(h5pre[0..38])
+    field h5_b = ASCIItoFieldu8::<38>(h5pre[38..76])
+    field h5_c = ASCIItoFieldu8::<38>(h5pre[76..114])
+    field h5_d = ASCIItoFieldu8::<38>(h5pre[114..152])
+    field[2] h5 = sha256packed([h5_a, h5_b, h5_c, h5_d])
+
+    u8[76] h6pre1 = fpl.d[0..76]
+    u8[76] h6pre2 = fpl.acm[0..76]
+    field h6_a = ASCIItoFieldu8::<38>(h6pre1[0..38])
+    field h6_b = ASCIItoFieldu8::<38>(h6pre1[38..76])
+    field h6_c = ASCIItoFieldu8::<38>(h6pre2[0..38])
+    field h6_d = ASCIItoFieldu8::<38>(h6pre2[38..76])
+    field[2] h6 = sha256packed([h6_a, h6_b, h6_c, h6_d])
+
+    u8[92] h7pre = [0; 92]
+    h7pre = FillHashPreimage::<0,8,8,92>(fpl.adas[0], h7pre)
+    h7pre = FillHashPreimage::<8,16,8,92>(fpl.adas[1], h7pre)
+    h7pre = FillHashPreimage::<16,28,12,92>(fpl.e, h7pre)
+    h7pre = FillHashPreimage::<28,38,10,92>(fpl.pob, h7pre)
+    h7pre = FillHashPreimage::<38,46,8,92>(fpl.er, h7pre)
+    h7pre = FillHashPreimage::<46,54,8,92>(fpl.se, h7pre)
+    h7pre = FillHashPreimage::<54,92,38,92>(fpl.pn, h7pre)
+    field h7_a = ASCIItoFieldu8::<23>(h7pre[0..23])
+    field h7_b = ASCIItoFieldu8::<23>(h7pre[23..46])
+    field h7_c = ASCIItoFieldu8::<23>(h7pre[46..69])
+    field h7_d = ASCIItoFieldu8::<23>(h7pre[69..92])
+    field[2] h7 = sha256packed([h7_a, h7_b, h7_c, h7_d])
+
+    u8[96] h8pre = [0; 96]
+    h8pre = FillHashPreimage::<0,20,20,96>(fpl.j, h8pre)
+    h8pre = FillHashPreimage::<20,96,76,96>(fpl.re, h8pre)
+    field h8_a = ASCIItoFieldu8::<24>(h8pre[0..24])
+    field h8_b = ASCIItoFieldu8::<24>(h8pre[24..48])
+    field h8_c = ASCIItoFieldu8::<24>(h8pre[48..72])
+    field h8_d = ASCIItoFieldu8::<24>(h8pre[72..96])
+    field[2] h8 = sha256packed([h8_a, h8_b, h8_c, h8_d])
+
+    field[2] h12 = sha256packed([h1[0], h1[1], h2[0], h2[1]])
+    field[2] h34 = sha256packed([h3[0], h3[1], h4[0], h4[1]])
+    field[2] h56 = sha256packed([h5[0], h5[1], h6[0], h6[1]])
+    field[2] h78 = sha256packed([h7[0], h7[1], h8[0], h8[1]])
+
+    field[2] h1234 = sha256packed([h12[0], h12[1], h34[0], h34[1]])
+    field[2] h5678 = sha256packed([h56[0], h56[1], h78[0], h78[1]])
+
+    return sha256packed([h1234[0], h1234[1], h5678[0], h5678[1]])
+    
+
+def isFPLFormHashWithOwner(FPLForm fpl, HashedFPLForm hfpl, Signature sig_ao, field[2] pk_ao) -> bool:
+
+    // Check if given signature is recovered by signing hashed fpl form with the private key corresponding
+    // to the provided public key, thereby proving that the owner of the private key has possession of the hashed fpl form
+    field[2] R = sig_ao.R
+    field S = sig_ao.S
+    assert(hashProvenance(R, S, pk_ao, hfpl))
+
+    // Check if hash of fpl is the same as input hash
+    field[2] h = HashFPLForm(fpl)
+    assert(h[0] == hfpl[0] && h[1] == hfpl[1])
+
+    //validate FPL
+    //assert(validateFPL(AircraftIdentifer a, FlightRule b, TypeOfFlight c))
+
+    return true
+
+//Compile throws error due to unconstrained variables (meaning unused private variables)
+//- possibly exclusively because of sig
+//- not because of fpl
+//- not because of hfpl
+
+def main(private FPLForm fpl, private HashedFPLForm hfpl, private Signature sig, public field[2] pk_ao):
+    assert(isFPLFormHashWithOwner(fpl, hfpl, sig, pk_ao))
+    return 

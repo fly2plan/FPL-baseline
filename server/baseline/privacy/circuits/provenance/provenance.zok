@@ -1,0 +1,15 @@
+from "./utils/hash_to_u32_array.zok" import hash_to_u32_array
+
+from "ecc/babyjubjubParams.zok" import BabyJubJubParams
+import "signatures/verifyEddsa.zok" as verifyEddsa
+import "ecc/babyjubjubParams.zok" as context
+
+
+def hashProvenance(field[2] R, field S, field[2] pk, field[2] h) -> bool:
+	u32[8] M0 = hash_to_u32_array(h)
+	u32[8] M1 = [0; 8]
+
+	BabyJubJubParams context = context()
+	
+    bool isVerified = verifyEddsa(R, S, pk, M0, M1, context)
+	return isVerified

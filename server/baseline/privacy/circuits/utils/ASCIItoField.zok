@@ -1,0 +1,18 @@
+import "utils/casts/u32_to_field.zok" as u32_to_field
+import "utils/casts/u8_to_field.zok" as u8_to_field
+
+def ASCIItoField<N>(u32[N] chars) -> field:
+    field res = 0
+    for u32 i in 0..N do
+        field char = u32_to_field(chars[i])
+        res = res + char * 10 ** (N - i - 1)
+    endfor
+    return res
+
+def ASCIItoFieldu8<N>(u8[N] chars) -> field:
+    field res = 0
+    for u32 i in 0..N do
+        field char = u8_to_field(chars[i])
+        res = res + char * 10 ** (N - i - 1)
+    endfor
+    return res
