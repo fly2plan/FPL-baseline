@@ -23,13 +23,6 @@ KafkaConsumer.consume().then(() => {
   console.log('consume start err ', err);
 })
 
-// console.log("Generating proof artifacts")
-// const { Initialise } = require('./baseline/privacy/proof.js');
-// const isInitialised = Initialise()
-// if (isInitialised) {
-//   console.log("Proof artifacts generated")
-// }
-
 app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
