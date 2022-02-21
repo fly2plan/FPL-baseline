@@ -15,7 +15,7 @@ def FillHashPreimage<F, T, N, H>(bool[N] arr, bool[H] hpre) -> bool[H]:
 
 def HashFPLForm(FPLForm fpl) -> field[2]:
 
-bool[128] h1_a_bits = [false; 128]
+    bool[128] h1_a_bits = [false; 128]
     h1_a_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.ai), h1_a_bits)
     h1_a_bits = FillHashPreimage::<64,72,8,128>(u8_to_bits(fpl.fr), h1_a_bits)
     h1_a_bits = FillHashPreimage::<72,80,8,128>(u8_to_bits(fpl.tof), h1_a_bits)
@@ -175,7 +175,7 @@ bool[128] h1_a_bits = [false; 128]
     h8_b_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.pn[0]), h8_b_bits)
     h8_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.pn[1]), h8_b_bits)
     field h8_b = pack128(h8_b_bits)
-    
+
     bool[128] h8_c_bits = [false; 128]
     h8_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[5]), h8_c_bits)
     field h8_c = pack128(h8_c_bits)
@@ -216,11 +216,6 @@ def isFPLFormHashWithOwner(FPLForm fpl, HashedFPLForm hfpl, Signature sig_ao, fi
     //assert(validateFPL(AircraftIdentifer a, FlightRule b, TypeOfFlight c))
 
     return true
-
-//Compile throws error due to unconstrained variables (meaning unused private variables)
-//- possibly exclusively because of sig
-//- not because of fpl
-//- not because of hfpl
 
 def main(private FPLForm fpl, private HashedFPLForm hfpl, private Signature sig, public field[2] pk_ao):
     assert(isFPLFormHashWithOwner(fpl, hfpl, sig, pk_ao))

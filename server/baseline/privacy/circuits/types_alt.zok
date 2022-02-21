@@ -67,32 +67,6 @@ type DepartureAerodrome = u32
 type CruisingSpeed = u64
 type CruisingLevel = u64
 
-// type ATSRouteDesignator u8[14]
-// type CurrentATSRouteDesignator ATSRouteDesignator
-// type NextATSRouteDesignator ATSRouteDesignator
-
-// type SignificantPoint u8[22]
-// type SignificantPoints SignificantPoint[5]
-
-// type SpeedOrLevelChange u8[42]
-// type SpeedOrLevelChanges SpeedOrLevelChange[5]
-
-// type FlightRuleChange u8[6]
-// type FlightRuleChanges FlightRuleChanges[5]
-
-// type CruiseClimb u8[56]
-// type CruiseClimbs CruiseClimb[5]
-
-// struct ATSRoute {
-//     CurrentATSRouteDesignator catsrd
-//     NextATSRouteDesignator natsrd
-//     SignificantPoints sp
-//     SpeedOrLevelChanges solc
-//     FlightRuleChanges flc
-// }
-
-//type Route ATSRoute[8] //hash of each 'ATSRoute' is a leaf of 3 height merkle tree?
-
 //Allow for a route of upto 304 characters
 type Route = u64[16] //HashSegment[8]
 
@@ -133,8 +107,7 @@ struct FPLForm {
                                   //14 -> u64 --- h1_b (112)
                                   //8 -> u32 --- h1_d
                                   //24 h1 -> u64 * 2 --- h1_c (128)
-
-                                  //98 h2 -> u64 * 5 --- h1_d -> u64 * 4 --- h2-a (128) && h2-b (128)
+                                  //98 h2 -> u64 * 6 --- h1_d -> u64 * 5 --- h2-a (128) && h2-b (128) -> u64
 
     Time t //8 h1 -> u32 --- h1_d (128)
     DepartureAerodrome da //8 h1 -> u32 --- h2_c
