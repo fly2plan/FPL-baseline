@@ -32,17 +32,15 @@ const updateWorkflow = (workflow) => {
 
 const addSyncWorkstep = (workflowId, id, {...content}) => {
   const {fpl, ack, pk} = content;
-  if (!workstepExists(id)) {
-    let proof = {};
-    if (fpl !== undefined) {
-      proof = new FPLSyncProof(fpl.raw, pk, fpl.signature, fpl.proof); //instantiate fplSyncProof which calls private methods to fill its fields;
-    } else if (ack !== undefined) {
-      const fplSyncProof = getWorkstep(getWorkflow(workflowId)['SYNC'][0]);
-      proof = new ACKSyncProof(fplSyncProof, pk)
-    }
-    addWorkstep({id: workstepId, step: proof});
+  let proof = {};
+  if (fpl !== undefined) {
+    proof = new FPLSyncProof(fpl.raw, pk, fpl.signature, fpl.proof); //instantiate fplSyncProof which calls private methods to fill its fields;
+  } else if (ack !== undefined) {
+    const fplSyncProof = getWorkstep(getWorkflow(workflowId)['SYNC'][0]);
+    proof = new ACKSyncProof(fplSyncProof, pk);
   }
-}
+  addWorkstep({id, step: proof});
+};
 
 const updateSyncWorkflow = (workgroupId, id, workstepId) => {
   updateWorkflow({workgroupId, id, type: 'SYNC', workstepId });
@@ -59,7 +57,7 @@ const handleSyncWorkflow = (syncWorkflow) => {
     addSyncWorkstep(workflowId, workstepId, workflow.SYNC);
   };
   updateSyncWorkflow(workgroupId, workflowId, workstepId);
-  broadcastSyncWorkstep(syncWorkflow.workgroupId, syncWorkflow.id);
+  broadcastSyncWorkstep(workgroupId, workflowId);
 };
 
 module.exports = {

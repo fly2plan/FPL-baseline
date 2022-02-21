@@ -27,14 +27,7 @@ router.use('/hash/:type', (req, res) => {
         const fpl = req.body.fpl;
         const fplSyncProof = new FPLSyncProof(fpl, pk); //instantiate fplSyncProof which calls private methods to fill its fields;
 
-        // const [h1, h2] = fplSyncProof.hash;
-        // const proof = await generateProof(h1, h2);
-
-        // const producer = new KafkaProducer('workflowSync', workflowSyncEventType);
-        // await producer.queue({ workgroupId, id, [SYNC]: { fpl: { raw, hash } } }, workflowSyncEventType);
-
         // Store fplSyncProof as workflow step (workstep) then access again.
-
         addWorkstep({ id: workstepId, step: fplSyncProof });
         updateSyncWorkflow(workgroupId, workflowId, workstepId);
 
@@ -44,15 +37,7 @@ router.use('/hash/:type', (req, res) => {
         const workflow = getWorkflow(workflowId);
         const fplSyncProof = getWorkstep(workflow['SYNC'][0]);
         const ackSyncProof = new ACKSyncProof(fplSyncProof, pk);
-        const workstepId = uuidv4();
 
-        // const [h1, h2] = fplSyncProof.hash;
-        // const proof = await generateProof(h1, h2);
-
-        // const producer = new KafkaProducer('workflowSync', workflowSyncEventType);
-        // await producer.queue({ workgroupId, id, [SYNC]: { fpl: { raw, hash } } }, workflowSyncEventType);
-
-        // Store fplSyncProof as workflow step (workstep) then access again.
         addWorkstep({ id: workstepId, step: ackSyncProof });
         updateSyncWorkflow(workgroupId, workflowId, workstepId);
 
@@ -69,26 +54,17 @@ router.use('/prove/:type', async (req, res) => {
     const type = req.params.type;
     let syncProof = null;
     let proof = null;
-    if (type == 'fpl') {
+    if (type == 'fpl' || type == 'ack') {
         const sig_ao = req.body.sig_ao;
-        syncProof = getWorkstep(workstepId);
-        proof = await syncProof.createProof(sig_ao);
-    } else if (type == 'ack') {
         const sig_nm = req.body.sig_nm;
         syncProof = getWorkstep(workstepId);
-        proof = await syncProof.createProof(sig_nm);
+        proof = await syncProof.createProof(sig_ao ? type === 'fpl' : sig_nm);
     } else {
         return res.status(404).send('Unknown object type');
     };
     if (proof !== null) {
-        // const producer = new KafkaProducer('workflowSync', workflowEventType);
-        // await producer.queue({ workgroupId, id, type: SYNC, [SYNC]: { fpl: { raw, proof, hash, signature } } }, workflowEventType);
-
-        // const producer = new KafkaProducer('workflowSync', workflowSyncEventType);
-        // await producer.queue({ workgroupId, workflowId, workstepId }, workflowSyncEventType);
-
-        // const producer = new FPLMessageProducer('workflowSync', workflowSyncEventType);
-        // await producer.queue({ workgroupId, workflowId, workstepId, [SYNC]: { [type]: syncProof.getProofArtifacts() } }, workflowSyncEventType);
+        const producer = new FPLMessageProducer('workflowSync', workflowSyncEventType);
+        await producer.queue({ workgroupId, workflowId, workstepId, [SYNC]: { [type]: syncProof.getProofArtifacts() } }, workflowSyncEventType);
     } else {
         return res.status(405).send('Proof generation failed');
     };
@@ -100,19 +76,9 @@ router.use('/verify/:proof', async (req, res) => {
     const workgroupId = req.body.workgroupId;
     const type = req.params.proof;
     const proof = req.body.proof;
-    if (type == 'fpl') {
-        fpl = req.body.raw;
-        // const fplSyncProof = new fplSyncProof(fpl, null);
-        // if (fplSyncProof.getProofArtifacts().hash !== req.body.hash) {
-        //     return res.status(405).send('Given fpl hash and generated fpl hash disagree');
-        // };
+    if (type === 'fpl' || type === 'ack') {
         const shieldAddress = getShieldAddress(workgroupId);
-        await truffle_connect.verify(proof.proof, proof.inputs, 'fpl', shieldAddress, () => {
-            res.send('verified');
-        });
-    } else if (type == 'ack') {
-        const shieldAddress = getShieldAddress(workgroupId);
-        await truffle_connect.verify(proof.proof, proof.inputs, 'ack', shieldAddress, () => {
+        await truffle_connect.verify(proof.proof, proof.inputs, type, shieldAddress, () => {
             res.send('verified');
         });
     } else {
