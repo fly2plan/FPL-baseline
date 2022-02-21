@@ -5,7 +5,7 @@ let stream;
 
 class FPLMessageProducer {
   eventType;
-  constructor(topic = 'fpl', eventType) {
+  constructor(topic = 'orgReg', eventType) {
     this.eventType = eventType;
     stream = kafkaConfig.producer(topic);
     console.log(`chosen topic: ${topic}`)
