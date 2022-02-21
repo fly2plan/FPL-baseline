@@ -1,7 +1,7 @@
 const Kafka = require('node-rdkafka');
 
 class KafkaConfig {
-  producer(topic = 'fpl') {
+  producer(topic = 'orgReg') {
     return Kafka.Producer.createWriteStream({
       'metadata.broker.list' : process.env.KAFKA_BROKER || 'localhost:9092'
       }, 
