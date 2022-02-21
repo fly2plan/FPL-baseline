@@ -176,6 +176,10 @@ bool[128] h1_a_bits = [false; 128]
     h8_b_bits = FillHashPreimage::<64,128,64,128>(u64_to_bits(fpl.pn[1]), h8_b_bits)
     field h8_b = pack128(h8_b_bits)
     
+    bool[128] h8_c_bits = [false; 128]
+    h8_c_bits = FillHashPreimage::<0,64,64,128>(u64_to_bits(fpl.eandc.rc_n_aae.a[5]), h8_c_bits)
+    field h8_c = pack128(h8_c_bits)
+    
     field[2] h1 = sha256packed([h1_a, h1_b, h1_c, h1_d])
     field[2] h2 = sha256packed([h2_a, h2_b, h2_c, h2_d])
     field[2] h3 = sha256packed([h3_a, h3_b, h3_c, h3_d])
@@ -183,7 +187,7 @@ bool[128] h1_a_bits = [false; 128]
     field[2] h5 = sha256packed([h5_a, h5_b, h5_c, h5_d])
     field[2] h6 = sha256packed([h6_a, h6_b, h6_c, h6_d])
     field[2] h7 = sha256packed([h7_a, h7_b, h7_c, h7_d])
-    field[2] h8 = sha256packed([h8_a, h8_b, 0, 0])
+    field[2] h8 = sha256packed([h8_a, h8_b, h8_c, 0])
 
     field[2] h12 = sha256packed([h1[0], h1[1], h2[0], h2[1]])
     field[2] h34 = sha256packed([h3[0], h3[1], h4[0], h4[1]])

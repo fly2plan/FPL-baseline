@@ -51,7 +51,7 @@ struct Surveillance {
 
 struct RC_N_AAE {
     u16 s
-    u64[5] a
+    u64[6] a
 }
 
 struct EquipmentAndCapabilites {
@@ -94,7 +94,7 @@ type CruisingLevel = u64
 //type Route ATSRoute[8] //hash of each 'ATSRoute' is a leaf of 3 height merkle tree?
 
 //Allow for a route of upto 304 characters
-type Route = u64[8] //HashSegment[8]
+type Route = u64[16] //HashSegment[8]
 
 // 16. DESTINATION, TOTAL ELAPSED TIME AND DESTINATION ALTERNATE AERODROMES
 type DestinationAerodrome = u32
