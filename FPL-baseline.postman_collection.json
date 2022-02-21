@@ -1,0 +1,481 @@
+{
+	"info": {
+		"_postman_id": "e37a28cb-b934-4c40-84ca-2969b20b0b7d",
+		"name": "FPL-baseline",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Join_AO",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"AO_key\", '[\"14897476871502190904409029696666322856887678969656209656241038339251270171395\", \"16668832459046858928951622951481252834155254151733002984053501254009901876174\"]');"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set('AO_id', `\"${response.id}\"`)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"AO\",\n    \"pk\": {{AO_Public_Key}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/organization",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"organization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join_NM",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"NM_key\", '[\"21715273850596312954904974472147290906491269550500570193604680361889132220377\", \"3161870534391964258194010589089177316887486533167236663570547206873941016760\"]');"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set('NM_id', `\"${response.id}\"`)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"NM\",\n    \"pk\": {{NM_Public_Key}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/api/organization",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"organization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Create_Workgroup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"workgroup_id\", response.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": {{AO_id}},\n    \"pk\": {{AO_Public_Key}},\n    \"session\": \"9a1MKs47QhCLTQYaAAAB\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/workgroup/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"workgroup",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_NM_Join_Workgroup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": {{NM_id}},\n    \"pk\": {{NM_Public_Key}},\n    \"session\": \"XebdtTrysvF8Z0tvAAAB\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/api/workgroup/join/{{workgroup_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"workgroup",
+						"join",
+						"{{workgroup_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Hash_FPL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"workflow_id\", JSON.stringify(response.workflowId));",
+							"pm.collectionVariables.set(\"workstep_id\", JSON.stringify(response.workstepId));",
+							"pm.collectionVariables.set(\"AO_artifacts\", JSON.stringify(response.artifacts));",
+							"let hash = response.artifacts.hash",
+							"pm.collectionVariables.set(\"AO_fpl_hash\", hash)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"pk\": {{AO_Public_Key}},\n    \"fpl\": {{AO_fpl}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/workflow/sync/hash/fpl",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"workflow",
+						"sync",
+						"hash",
+						"fpl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Prove_FPL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/workflow/sync/prove/fpl",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"workflow",
+						"sync",
+						"prove",
+						"fpl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Generate_Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"AO_Private_Key\",JSON.stringify(response.sk));",
+							"pm.collectionVariables.set(\"AO_Public_Key\", JSON.stringify(response.pk));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_NM_Generate_Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"NM_Private_Key\", JSON.stringify(response.sk));",
+							"pm.collectionVariables.set(\"NM_Public_Key\", JSON.stringify(response.pk));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Create_Signature",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"response = pm.response.json()",
+							"pm.collectionVariables.set(\"AO_sig\", JSON.stringify(response));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sk\": {{AO_Private_Key}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sign/{{AO_fpl_hash}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sign",
+						"{{AO_fpl_hash}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Create_Proof",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": {{workgroup_id}},\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/prove/fpl",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"prove",
+						"fpl"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "AO_key",
+			"value": ""
+		},
+		{
+			"key": "NM_key",
+			"value": ""
+		},
+		{
+			"key": "workgroup_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "AO_fpl",
+			"value": "{\n    \"ai\": \"MMMMMMM\",\n    \"fr\": \"F\",\n    \"tof\": \"M\",\n    \"noa\": \"MM\",\n    \"toa\": \"MMMM\",\n    \"wtc\": \"M\",\n    \"eandc\": {\n        \"rc_n_aae\": {\n            \"s\": \"MM\",\n            \"a\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\"\n        },\n        \"surveillance\": {\n            \"s\": \"M\",\n            \"ssr\": {\n                \"mode_a_c\": {\n                    \"a\": \"MM\"\n                },\n                \"mode_s\": {\n                    \"a\": \"MMMMMMM\"\n                }\n            },\n            \"ads\": {\n                \"c\": {\n                    \"a\": \"MMMM\"\n                },\n                \"b\": {\n                    \"a\": \"MMMMMMMMMMMM\"\n                }\n            }\n        }\n    },\n    \"t\": \"MMMM\",\n    \"da\": \"MMMM\",\n    \"cs\": \"MMMMM\",\n    \"cl\": \"MMMMM\",\n    \"r\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n    \"de\": \"MMMM\",\n    \"teet\": \"MMMM\",\n    \"ada\": \"MMMM\",\n    \"adas\": [\n        \"MMMM\",\n        \"MMMM\"\n    ],\n    \"oi\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n    \"e\": \"MMMMMM\",\n    \"pob\": \"MMMMM\",\n    \"er\": \"MMMM\",\n    \"se\": \"MMMM\",\n    \"j\": \"MMMMMMMMMM\",\n    \"d\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n    \"acm\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n    \"re\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n    \"pn\": \"MMMMMMMMMMMMMMMMMMM\"\n}",
+			"type": "string"
+		},
+		{
+			"key": "AO_id",
+			"value": ""
+		},
+		{
+			"key": "NM_id",
+			"value": ""
+		},
+		{
+			"key": "AO_artifacts",
+			"value": ""
+		},
+		{
+			"key": "workflow_id",
+			"value": ""
+		},
+		{
+			"key": "workstep_id",
+			"value": ""
+		},
+		{
+			"key": "AO_Private_Key",
+			"value": ""
+		},
+		{
+			"key": "AO_Public_Key",
+			"value": ""
+		},
+		{
+			"key": "NM_Private_Key",
+			"value": ""
+		},
+		{
+			"key": "NM_Public_Key",
+			"value": ""
+		},
+		{
+			"key": "AO_fpl_hash",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "AO_sig",
+			"value": ""
+		}
+	]
+}
