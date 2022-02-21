@@ -48,7 +48,9 @@ def get_keys():
 @app.route('/sign/<message>', methods=['POST'])
 def sign_message(message):
     request_data = request.get_json()
+    message = message.replace('"', '')
+    message = message + ''.join(['0' for _ in range(64)])
     sk = sk_from_seed(int(request_data['sk']))
-    sig = sk.sign(bytes.fromhex(message.replace('"', '')))
+    sig = sk.sign(bytes.fromhex(message))
     sig_R, sig_S = sig
     return {'R': [f'{sig_R.x}', f'{sig_R.y}'], 'S': f'{sig_S}'}
