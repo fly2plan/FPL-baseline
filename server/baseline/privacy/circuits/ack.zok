@@ -1,9 +1,9 @@
 import "hashes/sha256/512bitPacked" as sha256packed
-from "./types.zok" import FPLForm, HashedFPLForm, HashedFPLFormACK, Signature
+from "./types_alt.zok" import FPLForm, HashedFPLForm, HashedFPLFormACK, Signature
 from "./utils/ASCIItoField.zok" import ASCIItoFieldu8
 from "./provenance/provenance.zok" import hashProvenance
 
-from "./fpl" import isFPLFormHashWithOwner
+from "./fpl_alt" import isFPLFormHashWithOwner
 
 const u8[3] ACK = [65, 67, 75]
 
