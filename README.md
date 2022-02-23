@@ -5,8 +5,8 @@ A demonstration of an AO and NM enacting the synchronisation and subsequent acce
 Note that the 'session' key used in JSON requests of the postman collection is the id of a Socket.IO socket (see https://socket.io/docs/v4/server-socket-instance/)
 
 ### Prerequisites
-1. Install nvm to install Node.js v16.13.2
-2. Install ZoKrates
+1. Install [nvm](https://github.com/nvm-sh/nvm) to install Node.js v16.13.2
+2. Install [ZoKrates](https://github.com/Zokrates/ZoKrates)
 
 ### Installation
 1. Clone the repo
