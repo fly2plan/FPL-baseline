@@ -27,7 +27,7 @@ router.use('/hash/:type', (req, res) => {
         const fpl = req.body.fpl;
         const fplSyncProof = new FPLSyncProof(fpl, pk); //instantiate fplSyncProof which calls private methods to fill its fields;
 
-        // Store fplSyncProof as workflow step (workstep) then access again.
+        // Store fplSyncProof as workflow step (workstep).
         addWorkstep({ id: workstepId, step: fplSyncProof });
         updateSyncWorkflow(workgroupId, workflowId, workstepId);
 
