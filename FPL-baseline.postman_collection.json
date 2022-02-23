@@ -6,6 +6,70 @@
 	},
 	"item": [
 		{
+			"name": "As_AO_Generate_Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"AO_Private_Key\",JSON.stringify(response.sk));",
+							"pm.collectionVariables.set(\"AO_Public_Key\", JSON.stringify(response.pk));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_NM_Generate_Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()",
+							"pm.collectionVariables.set(\"NM_Private_Key\", JSON.stringify(response.sk));",
+							"pm.collectionVariables.set(\"NM_Public_Key\", JSON.stringify(response.pk));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Join_AO",
 			"event": [
 				{
@@ -227,102 +291,6 @@
 			"response": []
 		},
 		{
-			"name": "As_AO_Prove_FPL",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3001/api/workflow/sync/prove/fpl",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"workflow",
-						"sync",
-						"prove",
-						"fpl"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "As_AO_Generate_Keys",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"let response = pm.response.json()",
-							"pm.collectionVariables.set(\"AO_Private_Key\",JSON.stringify(response.sk));",
-							"pm.collectionVariables.set(\"AO_Public_Key\", JSON.stringify(response.pk));"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/keys",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"keys"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "As_NM_Generate_Keys",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"let response = pm.response.json()",
-							"pm.collectionVariables.set(\"NM_Private_Key\", JSON.stringify(response.sk));",
-							"pm.collectionVariables.set(\"NM_Public_Key\", JSON.stringify(response.pk));"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8081/keys",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8081",
-					"path": [
-						"keys"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "As_AO_Create_Signature",
 			"event": [
 				{
@@ -364,13 +332,13 @@
 			"response": []
 		},
 		{
-			"name": "As_AO_Create_Proof",
+			"name": "As_AO_Prove_FPL",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"workgroupId\": {{workgroup_id}},\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -378,13 +346,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/prove/fpl",
+					"raw": "http://localhost:3001/api/workflow/sync/prove/fpl",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "3001",
 					"path": [
+						"api",
+						"workflow",
+						"sync",
 						"prove",
 						"fpl"
 					]
