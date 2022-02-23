@@ -4,6 +4,44 @@ A demonstration of an AO and NM enacting the synchronisation and subsequent acce
 
 Note that the 'session' key used in JSON requests of the postman collection is the id of a Socket.IO socket (see https://socket.io/docs/v4/server-socket-instance/)
 
+### Prerequisites
+1. Install nvm to install Node.js v16.13.2
+2. Install ZoKrates
+
+### Installation
+1. Clone the repo
+   ```
+   git clone https://github.com/fly2plan/FPL-baseline.git
+   ```
+2. Install npm packages
+   ```
+   pushd server && \
+   nvm use 16.13.2 && npm install && \
+   popd
+   ```
+3. Generate circuit artifacts
+   ```
+   pushd server/baseline/privacy/circuits && \
+   mkdir -p artifacts/{fpl,ack} && \
+   cd ./artifacts/fpl && \
+   zokrates compile -i ../../fpl_alt.zok && \
+   zokrates setup && \
+   cd ../ack && \
+   zokrates compile -i ../../ack.zok && \
+   zokrates setup && \
+   popd
+   ```
+### Demo
+1. Start docker containers
+   ```
+   pushd ops && ./run.sh
+   ```
+2. Run postman collection
+3. Stop docker containers
+   ```
+   ./stop.sh && popd
+   ```
+
 ### Disclaimer
 This repository is not yet fit for demonstration, but functional, due to the time needed to generate a witness and its accompanying ZKP.
 
