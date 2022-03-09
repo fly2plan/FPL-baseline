@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	edwardsbn254 "github.com/consensys/gnark-crypto/ecc/bn254/twistededwards"
 	eddsabn254 "github.com/consensys/gnark-crypto/ecc/bn254/twistededwards/eddsa"
 	"github.com/consensys/gnark-crypto/signature"
@@ -232,16 +231,6 @@ var multipliers1 = hint.NewStaticHint(generateMultipliers, 1, 1)
 var multipliers4 = hint.NewStaticHint(generateMultipliers, 4, 4)
 var multipliers7 = hint.NewStaticHint(generateMultipliers, 7, 7)
 var multipliers11 = hint.NewStaticHint(generateMultipliers, 11, 11)
-
-func BigIntToElement(_ ecc.ID, inputs []*big.Int, results []*big.Int) error {
-	intAsElement := fr.Element{}
-	intAsElement.SetBigInt(inputs[0])
-	intAsElement.ToBigInt(results[0])
-	fmt.Println(results[0].String())
-	return nil
-}
-
-var intToElement = hint.NewStaticHint(BigIntToElement, 1, 1)
 
 func ToInt62(api frontend.API, ints [2]frontend.Variable) frontend.Variable {
 	multipliers, _ := api.NewHint(multipliers1, []frontend.Variable{24}...)
@@ -636,7 +625,6 @@ func proveFPL(input *ProveFPLInput) groth16.Proof {
 			multipliers4,
 			multipliers7,
 			multipliers11,
-			intToElement,
 			padIntHint}...),
 	}
 	proof, err := groth16.Prove(r1cs, pk, witness, proveOpts...)
