@@ -70,25 +70,32 @@ func charactersToInt(characters []int) *big.Int {
 
 	switch len(characters) {
 	case 37:
-		result.Add(&result, paddingInt(9, 74))
+		prefix, _ := big.NewInt(0).SetString("199", 10)
+		result.Add(&result, paddingInt(prefix, 74))
 		break
 	case 25:
-		result.Add(&result, paddingInt(99, 50))
+		prefix, _ := big.NewInt(0).SetString("199999999999999999999999999", 10)
+		result.Add(&result, paddingInt(prefix, 50))
 		break
 	case 24:
-		result.Add(&result, paddingInt(99, 48))
+		prefix, _ := big.NewInt(0).SetString("19999999999999999999999999999", 10)
+		result.Add(&result, paddingInt(prefix, 48))
 		break
 	case 31:
-		result.Add(&result, paddingInt(99, 62))
+		prefix, _ := big.NewInt(0).SetString("199999999999999", 10)
+		result.Add(&result, paddingInt(prefix, 62))
 		break
 	case 35:
-		result.Add(&result, paddingInt(99, 70))
+		prefix, _ := big.NewInt(0).SetString("1999999", 10)
+		result.Add(&result, paddingInt(prefix, 70))
 		break
 	case 34:
-		result.Add(&result, paddingInt(99, 68))
+		prefix, _ := big.NewInt(0).SetString("199999999", 10)
+		result.Add(&result, paddingInt(prefix, 68))
 		break
 	case 30:
-		result.Add(&result, paddingInt(99, 60))
+		prefix, _ := big.NewInt(0).SetString("19999999999999999", 10)
+		result.Add(&result, paddingInt(prefix, 60))
 		break
 	}
 	return &result
@@ -114,19 +121,8 @@ func compressToHash(hashes [][]byte) []byte {
 
 func hashPreimage(preimage []*big.Int) []byte {
 	for _, i := range preimage {
-		//extraBits := &big.Int{}
-		//base := big.NewInt(2)
-		bitsNeeded := big.NewInt(int64(254 - i.BitLen()))
-		fmt.Print("\n", i.String(), " ", bitsNeeded)
-		//extraBits = extraBits.Exp(base, bitsNeeded, nil)
-		//fmt.Println(extraBits)
-		//i.Mul(i, extraBits)
-		fmt.Print(" ", i.String(), " ", i.BitLen())
-		for j := 0; j < int(bitsNeeded.Int64()); j++ {
-			i.Mul(i, big.NewInt(2))
-		}
+		fmt.Println(" ", i.String(), i.BitLen())
 		hFunc.Write(i.Bytes())
-		fmt.Print(" ", i.String())
 	}
 	return hFunc.Sum(nil)
 }

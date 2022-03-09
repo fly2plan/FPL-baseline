@@ -18,7 +18,6 @@ import (
 	"github.com/consensys/gnark/std/hash/mimc"
 	"github.com/consensys/gnark/std/signature/eddsa"
 	"math/big"
-	"strconv"
 	"strings"
 )
 
@@ -294,8 +293,8 @@ func ToInt60(api frontend.API, ints [12]frontend.Variable) frontend.Variable {
 	return int52
 }
 
-func paddingInt(prefix int, multipleOf10 int) *big.Int {
-	sPrefix := strconv.Itoa(prefix)
+func paddingInt(prefix *big.Int, multipleOf10 int) *big.Int {
+	sPrefix := prefix.String()
 	sb := strings.Builder{}
 	sb.WriteString(sPrefix)
 	for j := 0; j < multipleOf10; j++ {
@@ -306,7 +305,7 @@ func paddingInt(prefix int, multipleOf10 int) *big.Int {
 }
 
 func generatePaddingInt(_ ecc.ID, inputs []*big.Int, results []*big.Int) error {
-	pInt := paddingInt(int(inputs[0].Int64()), int(inputs[1].Int64()))
+	pInt := paddingInt(inputs[0], int(inputs[1].Int64()))
 	*results[0] = *pInt
 	return nil
 }
@@ -314,100 +313,107 @@ func generatePaddingInt(_ ecc.ID, inputs []*big.Int, results []*big.Int) error {
 var padIntHint = hint.NewStaticHint(generatePaddingInt, 2, 1)
 
 func Pad48(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 167 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 48}...)
+	//prepend '19999999999999999999999999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("19999999999999999999999999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 48}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 48}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 87; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-	}
+	//multiplier := big.NewInt(2)
+	//for i := 0; i < 87; i++ {
+	//	pInt = api.Mul(pInt, multiplier)
+	//}
 	return pInt
 }
 
 func Pad50(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 173 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 50}...)
+	//prepend '199999999999999999999999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("199999999999999999999999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 50}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 50}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 81; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-		api.Println(pInt)
-	}
+	//for i := 0; i < 81; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//	api.Println(pInt)
+	//}
 	//api.Println(pInt)
 	return pInt
 }
 
 func Pad60(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 206 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 60}...)
+	//prepend '19999999999999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("19999999999999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 60}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 60}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 48; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-	}
+	//for i := 0; i < 48; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//}
 	//api.Println(pInt)
 	return pInt
 }
 
 func Pad62(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 213 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 62}...)
+	//prepend '199999999999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("199999999999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 62}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 62}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 41; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-	}
+	//for i := 0; i < 41; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//}
 	//api.Println(pInt)
 	return pInt
 }
 
 func Pad68(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 233 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 68}...)
+	//prepend '199999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("199999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 68}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 68}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 21; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-	}
+	//for i := 0; i < 21; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//}
 	//api.Println(pInt)
 	return pInt
 }
 
 func Pad70(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '99' -> 240 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{99, 70}...)
+	//prepend '1999999' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("1999999", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 70}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 70}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(99)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 14; i++ {
-		pInt = api.Mul(pInt, big.NewInt(2))
-	}
+	//for i := 0; i < 14; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//}
 	//api.Println(pInt)
 	return pInt
 }
 
 func Pad74(api frontend.API, int frontend.Variable) frontend.Variable {
-	//prepend '9' -> 250 bits
-	padding, _ := api.NewHint(padIntHint, []frontend.Variable{9, 74}...)
+	//prepend '199' -> 254 bits
+	prefix, _ := big.NewInt(0).SetString("199", 10)
+	padding, _ := api.NewHint(padIntHint, []frontend.Variable{prefix, 74}...)
 	compareTo, _ := api.NewHint(padIntHint, []frontend.Variable{1, 74}...)
-	api.AssertIsEqual(api.Mul(compareTo[0], big.NewInt(9)), padding[0])
+	api.AssertIsEqual(api.Mul(compareTo[0], prefix), padding[0])
 	pInt := api.Add(padding[0], int)
 	api.Println(pInt)
-	for i := 0; i < 4; i++ {
-		//pInt = api.Mul(pInt, big.NewInt(2))
-	}
-	api.Println(pInt)
+	//for i := 0; i < 4; i++ {
+	//	pInt = api.Mul(pInt, big.NewInt(2))
+	//}
 	return pInt
 }
 
@@ -522,9 +528,9 @@ func (circuit *FPLCircuit) Define(api frontend.API) error {
 			})),
 	}
 
-	for i := 0; i < 15; i++ {
-		api.Println(preimage[i], i)
-	}
+	//for i := 0; i < 15; i++ {
+	//	api.Println(preimage[i], i)
+	//}
 
 	hash, err := mimc.NewMiMC(api)
 	if err != nil {
@@ -534,8 +540,7 @@ func (circuit *FPLCircuit) Define(api frontend.API) error {
 		hash.Write(preimage[i])
 	}
 	h := hash.Sum()
-	api.Println(h, circuit.Hash)
-	//api.AssertIsEqual(h, circuit.Hash)
+	api.AssertIsEqual(h, circuit.Hash)
 
 	api.AddCounter(beforeHash, api.Tag("after hash"))
 
@@ -574,8 +579,6 @@ func proveFPL(input *ProveFPLInput) groth16.Proof {
 	fmt.Printf("\npk is %+v", input.EPublicKey)
 	fmt.Printf("\nsig is %+v", input.ESignature)
 	fmt.Printf("\nhash is %+v", input.EHash)
-
-	fmt.Println(hashFPL(parsedFPL))
 
 	signature.Register(signature.EDDSA_BN254, eddsabn254.GenerateKeyInterfaces)
 	privateKey, _ := signature.EDDSA_BN254.New(rand.Reader)
