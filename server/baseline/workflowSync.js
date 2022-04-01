@@ -19,36 +19,6 @@ router.use((req, res, next) => {
     next();
 });
 
-router.use('/hash/:type', (req, res) => {
-    const pk = req.body.pk;
-    const workgroupId = req.body.workgroupId;
-    const type = req.params.type;
-    const workstepId = uuidv4();
-    if (type == 'fpl') {
-        const workflowId = res.locals.id;
-        const fpl = req.body.fpl;
-        const fplSyncProof = new FPLSyncProof(fpl, pk); //instantiate fplSyncProof which calls private methods to fill its fields;
-
-        // Store fplSyncProof as workflow step (workstep).
-        addWorkstep({ id: workstepId, step: fplSyncProof });
-        updateSyncWorkflow(workgroupId, workflowId, workstepId);
-
-        res.status(200).send({ workflowId, workstepId, artifacts: fplSyncProof.getProofArtifacts() });
-    } else if (type == 'ack') {
-        const workflowId = req.body.workflowId;
-        const workflow = getWorkflow(workflowId);
-        const fplSyncProof = getWorkstep(workflow['SYNC'][0]);
-        const ackSyncProof = new ACKSyncProof(fplSyncProof, pk);
-
-        addWorkstep({ id: workstepId, step: ackSyncProof });
-        updateSyncWorkflow(workgroupId, workflowId, workstepId);
-
-        res.status(200).send({ workflowId, workstepId, artifacts: ackSyncProof.getProofArtifacts() });
-    } else {
-        return res.status(404).send('Unknown object type');
-    };
-});
-
 router.use('/prove/:type', async (req, res) => {
     const workgroupId = req.body.workgroupId;
     const workflowId = res.locals.id ? res.locals.id : req.body.workflowId;
