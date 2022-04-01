@@ -3,7 +3,7 @@ const router = express.Router()
 
 const { v4: uuidv4 } = require('uuid');
 
-const { organizationExists } = require('./organizationRegistry');
+const { organizationExists, getOrg } = require('./organizationRegistry');
 
 const truffle_connect = require('../connection/truffle_connect')
 
@@ -33,7 +33,7 @@ router.post('', async (req, res) => {
 
     let workgroup = {
       id: id,
-      members: [{ id: req.body.id, pk: req.body.pk }],
+      members: [{ id: req.body.id, pk: getOrg(req.body.id).pk }],
       shieldContractAddress,
       workflows: []
     };
@@ -52,6 +52,7 @@ router.post('/join/:id', async (req, res) => {
     return res.sendStatus(403);
   }
 
+  const org = getOrg(req.body.id)
   const id = req.params.id
 
   if (workgroupRegistry.has(id)) {
@@ -64,7 +65,7 @@ router.post('/join/:id', async (req, res) => {
           shieldContractAddress: workgroup.shieldContractAddress,
           members: [
             workgroup.members[0],
-            { id: req.body.id, pk: req.body.pk }
+            { id: org.id, pk: org.pk }
           ],
           workflows: []
         }

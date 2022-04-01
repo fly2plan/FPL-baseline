@@ -13,10 +13,7 @@ const orgEventType = avro.Type.forSchema({
     },
     {
       name: 'pk',
-      type: {
-        type: 'array',
-        items: 'string'
-      }
+      type: 'string'
     }
   ]
 });
@@ -46,10 +43,7 @@ const workgroupEventType = avro.Type.forSchema({
             },
             {
               name: 'pk',
-              type: {
-                type: 'array',
-                items: 'string'
-              }
+              type: 'string'
             }
           ]
         },
@@ -67,7 +61,7 @@ const workgroupEventType = avro.Type.forSchema({
   ]
 });
 
-const workflowSyncEventType = avro.Type.forSchema({
+const workflowSyncFPLEventType = avro.Type.forSchema({
   type: 'record',
   fields: [
     {
@@ -267,7 +261,10 @@ const workflowSyncEventType = avro.Type.forSchema({
                       },
                       {
                         name: 'adas',
-                        type: 'string'
+                        type: {
+                          type: 'array',
+                          items: 'string'
+                        }
                       },
                       {
                         name: 'oi',
@@ -313,28 +310,99 @@ const workflowSyncEventType = avro.Type.forSchema({
                   },
                 },
                 {
-                  name: 'hash',
-                  type: 'string',
-                },
-                {
-                  name: 'signature',
+                  name: 'proof',
                   type: {
                     type: 'record',
-                    name: 'Signature',
+                    name: 'Proof',
                     fields: [
                       {
-                        name: 'R',
+                        name: 'a',
                         type: {
                           type: 'array',
                           items: 'string'
                         }
                       },
                       {
-                        name: 'S',
-                        type: 'string'
+                        name: 'b',
+                        type: {
+                          type: 'array',
+                          items: {
+                            type: 'array',
+                            name: 'b_item',
+                            items: 'string'
+                          }
+                        }
+                      },
+                      {
+                        name: 'c',
+                        type: {
+                          type: 'array',
+                          items: 'string'
+                        }
                       }
                     ]
                   },
+                },
+                {
+                  name: 'inputs',
+                  type: {
+                    type: 'record',
+                    name: 'Inputs',
+                    fields: [
+                      {
+                        name: 'hash',
+                        type: 'string'
+                      },
+                      {
+                        name: 'sig',
+                        type: 'string'
+                      },
+                      {
+                        name: 'pk',
+                        type: 'string'
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+          },
+        ]
+      },
+    }
+  ]
+});
+
+const workflowSyncACKEventType = avro.Type.forSchema({
+  type: 'record',
+  fields: [
+    {
+      name: 'workgroupId',
+      type: 'string'
+    },
+    {
+      name: 'workflowId',
+      type: 'string'
+    },
+    {
+      name: 'workstepId',
+      type: 'string'
+    },
+    {
+      name: 'SYNC',
+      type: {
+        type: 'record',
+        name: 'Sync',
+        fields: [
+          {
+            name: 'ack',
+            type: {
+              type: 'record',
+              name: 'ACK',
+              fields: [
+                {
+                   name: 'raw',
+                   type: 'string'
                 },
                 {
                   name: 'proof',
@@ -343,14 +411,25 @@ const workflowSyncEventType = avro.Type.forSchema({
                     name: 'Proof',
                     fields: [
                       {
-                        name: 'proof',
+                        name: 'a',
                         type: {
                           type: 'array',
-                          items: 'boolean'
+                          items: 'string'
                         }
                       },
                       {
-                        name: 'inputs',
+                        name: 'b',
+                        type: {
+                          type: 'array',
+                          items: {
+                            type: 'array',
+                            name: 'b_item',
+                            items: 'string'
+                          }
+                        }
+                      },
+                      {
+                        name: 'c',
                         type: {
                           type: 'array',
                           items: 'string'
@@ -358,35 +437,43 @@ const workflowSyncEventType = avro.Type.forSchema({
                       }
                     ]
                   },
+                },
+                {
+                  name: 'inputs',
+                  type: {
+                    type: 'record',
+                    name: 'Inputs',
+                    fields: [
+                      {
+                        name: 'fpl_hash',
+                        type: 'string'
+                      },
+                      {
+                        name: 'ao_sig',
+                        type: 'string'
+                      },
+                      {
+                        name: 'ao_pk',
+                        type: 'string'
+                      },
+                      {
+                        name: 'ack_hash',
+                        type: 'string'
+                      },
+                      {
+                        name: 'nm_sig',
+                        type: 'string'
+                      },
+                      {
+                        name: 'nm_pk',
+                        type: 'string'
+                      }
+                    ]
+                  }
                 }
               ]
             },
           },
-          {
-            name: 'ack',
-            type: {
-              type: 'record',
-              name: 'ACK',
-              fields: [
-                {
-                  name: 'hash',
-                  type: {
-                    type: 'array',
-                    items: 'string',
-                  },
-                  default: []
-                },
-                {
-                  name: 'signature',
-                  type: 'Signature'
-                },
-                {
-                  name: 'proof',
-                  type: 'Proof'
-                }
-              ],
-            },
-          }
         ]
       },
     }
@@ -396,5 +483,6 @@ const workflowSyncEventType = avro.Type.forSchema({
 module.exports = {
   orgEventType,
   workgroupEventType,
-  workflowSyncEventType
+  workflowSyncFPLEventType,
+  workflowSyncACKEventType
 }

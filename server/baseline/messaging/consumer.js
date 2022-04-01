@@ -1,5 +1,5 @@
 const KafkaConfig = require('./config.js');
-const { orgEventType, workgroupEventType, workflowSyncEventType } = require('./eventType.js');
+const { orgEventType, workgroupEventType, workflowSyncFPLEventType, workflowSyncACKEventType } = require('./eventType.js');
 let kafkaConfig = new KafkaConfig();
 
 const { insertOrg } = require('../organizationRegistry');
@@ -18,8 +18,12 @@ async function consume() {
       case 'workgroupReg': 
         updateWorkgroup(workgroupEventType.fromBuffer(data.value))
         break;
-      case 'workflowSync':
-        const syncWorkflow = workflowSyncEventType.fromBuffer(data.value);
+      case 'workflowSyncFPL':
+        let syncWorkflow = workflowSyncFPLEventType.fromBuffer(data.value);
+        handleSyncWorkflow(syncWorkflow);
+        break;
+      case 'workflowSyncACK':
+        syncWorkflow = workflowSyncACKEventType.fromBuffer(data.value);
         handleSyncWorkflow(syncWorkflow);
         break;
       default:

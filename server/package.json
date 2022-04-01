@@ -24,21 +24,18 @@
     "web3": "^0.20.0"
   },
   "dependencies": {
+    "@truffle/contract": "^4.5.1",
     "avsc": "^5.7.3",
+    "axios": "^0.26.1",
     "body-parser": "^1.18.2",
-    "circomlib": "^2.0.2",
-    "circomlibjs": "^0.1.1",
     "crypto-js": "^4.1.1",
     "express": "^4.16.2",
-    "jquery": "^3.3.1",
     "node-rdkafka": "^2.12.0",
     "nodemon": "^1.14.12",
     "randexp": "^0.5.3",
-    "snarkjs": "^0.4.10",
     "socket.io": "^4.4.0",
     "uuid": "^8.3.2",
-    "web3-utils": "^1.6.1",
-    "zokrates-js": "^1.0.39",
-    "zokrates-pycryptojs": "^1.0.4"
+    "web3-eth-abi": "^1.7.1",
+    "web3-utils": "^1.6.1"
   }
 }

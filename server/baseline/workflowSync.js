@@ -1,16 +1,18 @@
 const express = require('express');
 const { FPLSyncProof, ACKSyncProof } = require('./privacy/proof');
 const { SYNC, updateSyncWorkflow, getWorkflow } = require('./workflowRegistry');
-const { workflowSyncEventType } = require('./messaging/eventType');
+const { workflowSyncFPLEventType } = require('./messaging/eventType');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const { addWorkstep, getWorkstep } = require('./workstepRegistry');
 const { getShieldAddress } = require('./workgroupRegistry');
 const FPLMessageProducer = require('./messaging/producer');
+const truffle_connect = require('../connection/truffle_connect');
+const { getFormattedProof } = require('./privacy/service');
 
 router.use((req, res, next) => {
     if (res.locals.id !== undefined) {
-        if (req.path !== '/hash/fpl') {
+        if (req.path !== '/prove/fpl') {
             return res.sendStatus(403);
         };
     };
@@ -49,37 +51,62 @@ router.use('/hash/:type', (req, res) => {
 
 router.use('/prove/:type', async (req, res) => {
     const workgroupId = req.body.workgroupId;
-    const workflowId = req.body.workflowId;
-    const workstepId = req.body.workstepId;
+    const workflowId = res.locals.id ? res.locals.id : req.body.workflowId;
+    const workstepId = uuidv4();
     const type = req.params.type;
     let syncProof = null;
     let proof = null;
-    if (type == 'fpl' || type == 'ack') {
-        const sig_ao = req.body.sig_ao;
-        const sig_nm = req.body.sig_nm;
-        syncProof = getWorkstep(workstepId);
-        proof = await syncProof.createProof(sig_ao ? type === 'fpl' : sig_nm);
+    if (type == 'fpl') {
+        const fpl = req.body.fpl
+        const sk = req.body.sk;
+        syncProof = new FPLSyncProof(fpl)
+        proof = await syncProof.createProof(sk);
+        addWorkstep({ id: workstepId, step: syncProof });
+    } else if (type == 'ack') {
+        const sk = req.body.sk
+        const workflow = getWorkflow(workflowId)
+        const workstep = getWorkstep(workflow[SYNC][workflow[SYNC].length - 1]).getProofAndInputs()
+        const { raw, inputs } = workstep
+        const {pk, sig, hash} = inputs
+        syncProof = new ACKSyncProof({fpl: raw, pk, sig, hash})
+        proof = await syncProof.createProof(sk)
     } else {
         return res.status(404).send('Unknown object type');
     };
     if (proof !== null) {
-        const producer = new FPLMessageProducer('workflowSync', workflowSyncEventType);
-        await producer.queue({ workgroupId, workflowId, workstepId, [SYNC]: { [type]: syncProof.getProofArtifacts() } }, workflowSyncEventType);
+        const eventType = type == 'fpl' ? workflowSyncFPLEventType: workflowSyncACKEventType
+        const event = type == 'fpl' ? 'workflowSyncFPL' : 'workflowSyncACK'
+        const producer = new FPLMessageProducer(event, eventType);
+        await producer.queue({ workgroupId, workflowId, workstepId, [SYNC]: { [type]: syncProof.getProofAndInputs() } }, eventType);
     } else {
         return res.status(405).send('Proof generation failed');
     };
-    //res.sendStatus(200);
-    res.status(200).send(proof);
+    res.sendStatus(200);
 });
 
 router.use('/verify/:proof', async (req, res) => {
-    const workgroupId = req.body.workgroupId;
+    const workgroupId = req.body.workgroupId
+    const workflowId = req.body.workflowId
+    const workflow = getWorkflow(workflowId)
+    if (workflow === undefined) {
+        return res.status(404).send('Workflow not found');
+    }
+    const workstep = getWorkstep(workflow[SYNC][workflow[SYNC].length - 1]).getProofAndInputs()
+    if (workstep === undefined) {
+        return res.status(404).send('Workflow is empty');
+    }
+    const { proof, inputs } = workstep
+    const shieldAddress = getShieldAddress(workgroupId);
     const type = req.params.proof;
-    const proof = req.body.proof;
     if (type === 'fpl' || type === 'ack') {
-        const shieldAddress = getShieldAddress(workgroupId);
-        await truffle_connect.verify(proof.proof, proof.inputs, type, shieldAddress, () => {
-            res.send('verified');
+        let formattedProof = await getFormattedProof(type, proof, inputs)
+        if (formattedProof[1] !== undefined) {
+            return res.status(500).send(`Error formatting proof: ${formattedProof[1]}`)
+        }
+        const {a, b, c} = formattedProof[0].proof
+        const input = formattedProof[0].inputs
+        await truffle_connect.verify(type, a, b, c, input, shieldAddress, (result) => {
+            return res.send(result);
         });
     } else {
         return res.status(404).send('Unknown proof type');

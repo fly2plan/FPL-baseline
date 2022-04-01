@@ -1,7 +1,7 @@
 const { FPLSyncProof, ACKSyncProof } = require("./privacy/proof");
 const { getIO } = require("./utils/socket");
 const { updateWorkgroup, workgroupRegistry } = require("./workgroupRegistry");
-const { getWorkstep, workstepExists } = require("./workstepRegistry");
+const { addWorkstep, getWorkstep, workstepExists } = require("./workstepRegistry");
 
 let workflowRegistry = new Map();
 
@@ -18,9 +18,8 @@ const getWorkflow = (id) => {
 
 const updateWorkflow = (workflow) => {
   if (!workflowExists(workflow.id)) {
-    workflowRegistry.set(workflow.id, {[workflow.type]: [workflow.workstepId]});
+    workflowRegistry.set(workflow.id, { [workflow.type]: [workflow.workstepId] });
     let workgroup = workgroupRegistry.get(workflow.workgroupId);
-    console.log(workgroup, workflow);
     workgroup.workflows.push(workflow.id);
     updateWorkgroup(workgroup);
     return;
@@ -30,25 +29,29 @@ const updateWorkflow = (workflow) => {
   };
 };
 
-const addSyncWorkstep = (workflowId, id, {...content}) => {
-  const {fpl, ack, pk} = content;
-  let proof = {};
+const addSyncWorkstep = (workflowId, id, { ...content }) => {
+  const { fpl, ack, pk } = content;
+  let syncProof = {};
   if (fpl !== undefined) {
-    proof = new FPLSyncProof(fpl.raw, pk, fpl.signature, fpl.proof); //instantiate fplSyncProof which calls private methods to fill its fields;
+    const { raw, proof, inputs } = fpl
+    const { hash, pk, sig } = inputs
+    syncProof = new FPLSyncProof(raw, hash, pk, sig, proof); //instantiate fplSyncProof which calls private methods to fill its fields;
   } else if (ack !== undefined) {
-    const fplSyncProof = getWorkstep(getWorkflow(workflowId)['SYNC'][0]);
-    proof = new ACKSyncProof(fplSyncProof, pk);
+    const fplSyncProof = getWorkstep(getWorkflow(workflowId)[SYNC][0]);
+    const { raw, proof, inputs } = ack
+    const {ack_hash: hash, nm_sig: sig, nm_pk: pk} = inputs
+    syncProof = new ACKSyncProof(fplSyncProof, hash, pk, sig, proof);
   }
-  addWorkstep({id, step: proof});
+  addWorkstep({ id, step: syncProof });
 };
 
 const updateSyncWorkflow = (workgroupId, id, workstepId) => {
-  updateWorkflow({workgroupId, id, type: 'SYNC', workstepId });
+  updateWorkflow({ workgroupId, id, type: SYNC, workstepId });
 };
 
 const broadcastSyncWorkstep = (workgroupId, workflowId) => {
   const workflow = workflowRegistry.get(workflowId);
-  getIO().to(workgroupId).emit('workflow:sync', getWorkstep(workflow[SYNC][workflow[SYNC].length - 1]).getProofArtifacts());
+  getIO().to(workgroupId).emit('workflow:sync', getWorkstep(workflow[SYNC][workflow[SYNC].length - 1]).getProofAndInputs());
 };
 
 const handleSyncWorkflow = (syncWorkflow) => {
@@ -61,6 +64,7 @@ const handleSyncWorkflow = (syncWorkflow) => {
 };
 
 module.exports = {
+  SYNC,
   workflowRegistry,
   workflowExists,
   getWorkflow,

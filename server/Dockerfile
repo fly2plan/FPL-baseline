@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16.13.2
 
 #For zokrates-pycryptojs
 RUN apt-get update || : && apt-get install python -y

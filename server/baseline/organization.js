@@ -7,6 +7,7 @@ const { orgEventType } = require('./messaging/eventType.js');
 const FPLMessageProducer = require('./messaging/producer.js');
 
 const { orgRegistry } = require('./organizationRegistry');
+const { getKeys } = require('./privacy/service.js');
 
 
 router.get('/:id', (req, res) => {
@@ -20,13 +21,13 @@ router.get('/:id', (req, res) => {
 router.post('', async (req, res) => {
   const id = uuidv4();
   if (req.body.name) {
-
-    let org = { id, name: req.body.name, pk: req.body.pk };
+    let {sk, pk} = await getKeys()
+    let org = { id, name: req.body.name, pk: pk };
 
     const producer = new FPLMessageProducer('orgReg', orgEventType);
     await producer.queue(org, orgEventType);
 
-    return res.json({ id: id });
+    return res.json({ id: id, sk: sk });
   }
 
   res.sendStatus(400);

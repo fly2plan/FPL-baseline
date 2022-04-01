@@ -14,11 +14,19 @@ const insertOrg = (organization) => {
   orgRegistry.set(organization.id, {
     id: organization.id,
     name: organization.name,
+    pk: organization.pk
   })
+}
+
+const getOrg = (id) => {
+  if (organizationExists(id)) {
+    return orgRegistry.get(id)
+  }
 }
 
 module.exports = {
   orgRegistry,
   organizationExists,
-  insertOrg
+  insertOrg,
+  getOrg,
 }

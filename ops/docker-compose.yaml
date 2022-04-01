@@ -7,6 +7,8 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - app
     profiles:
       - infra
       - bpi
@@ -21,6 +23,8 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
+    networks:
+      - app
     depends_on:
       - zookeeper
     profiles:
@@ -31,6 +35,9 @@ services:
     container_name: 'ganache-cli'
     ports:
       - '8545:8545'
+    networks:
+      - p1
+      - p2
     profiles:
       - infra
       - bpi
@@ -41,12 +48,16 @@ services:
     container_name: 'p1-bpi'
     ports:
       - '3001:3000'
+    networks:
+       - p1
+       - app
     environment:
+      - PROOF_SERVICE=p1-proof:3000
       - KAFKA_GROUP='p1-kafka'
       - KAFKA_BROKER=kafka:9092
       - PLAYER_ID=P1
     depends_on:
-      - kafka
+      - p1-proof
       - ganache-cli
     profiles:
       - bpi
@@ -56,31 +67,44 @@ services:
       dockerfile: ../server/Dockerfile
     container_name: 'p2-bpi'
     ports:
-      - '3002:3000'
+      - '3003:3000'
+    networks:
+      - p2
+      - app
     environment:
+      - PROOF_SERVICE=p2-proof:3000
       - KAFKA_GROUP='p2-kafka'
       - KAFKA_BROKER=kafka:9092
       - PLAYER_ID=P2
     depends_on:
-      - kafka
+      - p2-proof
       - ganache-cli
     profiles:
       - bpi
-  p1-client:
+  p1-proof:
     build:
-      context: ../client
-      dockerfile: ../client/Dockerfile
-    container_name: 'p1-client'
+      context: ../server/baseline/privacy/gnark
+    container_name: 'p1-proof'
     ports:
-      - '8080:3000'
+      - '3002:3000'
+    networks:
+      - p1
     profiles:
-      - frontend
-  p2-client:
+      - bpi
+  p2-proof:
     build:
-      context: ../client
-      dockerfile: ../client/Dockerfile
-    container_name: 'p2-client'
+      context: ../server/baseline/privacy/gnark
+    container_name: 'p2-proof'
     ports:
-      - '8081:3000'
+       - '3004:3000'
+    networks:
+       - p2
     profiles:
-      - frontend
+      - bpi
+networks:
+  app:
+    driver: bridge
+  p1:
+    driver: bridge
+  p2:
+    driver: bridge
