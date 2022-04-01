@@ -76,7 +76,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set(\"AO_key\", '[\"14897476871502190904409029696666322856887678969656209656241038339251270171395\", \"16668832459046858928951622951481252834155254151733002984053501254009901876174\"]');"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -86,7 +86,8 @@
 					"script": {
 						"exec": [
 							"let response = pm.response.json()",
-							"pm.collectionVariables.set('AO_id', `\"${response.id}\"`)"
+							"pm.collectionVariables.set('AO_id', `\"${response.id}\"`)",
+							"pm.collectionVariables.set('AO_sk', `\"${response.sk}\"`)"
 						],
 						"type": "text/javascript"
 					}
@@ -97,7 +98,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"AO\",\n    \"pk\": {{AO_Public_Key}}\n}",
+					"raw": "{\n    \"name\": \"AO\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -126,7 +127,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.collectionVariables.set(\"NM_key\", '[\"21715273850596312954904974472147290906491269550500570193604680361889132220377\", \"3161870534391964258194010589089177316887486533167236663570547206873941016760\"]');"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -136,7 +137,8 @@
 					"script": {
 						"exec": [
 							"let response = pm.response.json()",
-							"pm.collectionVariables.set('NM_id', `\"${response.id}\"`)"
+							"pm.collectionVariables.set('NM_id', `\"${response.id}\"`)",
+							"pm.collectionVariables.set('NM_sk', `\"${response.sk}\"`)"
 						],
 						"type": "text/javascript"
 					}
@@ -147,7 +149,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"NM\",\n    \"pk\": {{NM_Public_Key}}\n}",
+					"raw": "{\n    \"name\": \"NM\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -155,12 +157,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3002/api/organization",
+					"raw": "http://localhost:3003/api/organization",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3002",
+					"port": "3003",
 					"path": [
 						"api",
 						"organization"
@@ -188,7 +190,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id\": {{AO_id}},\n    \"pk\": {{AO_Public_Key}},\n    \"session\": \"9a1MKs47QhCLTQYaAAAB\"\n}",
+					"raw": "{\n    \"id\": {{AO_id}},\n    \"session\": \"QnBE42cB4OwmynElAAAB\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -218,7 +220,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id\": {{NM_id}},\n    \"pk\": {{NM_Public_Key}},\n    \"session\": \"XebdtTrysvF8Z0tvAAAB\"\n}",
+					"raw": "{\n    \"id\": {{NM_id}},\n    \"session\": \"nitTt-dvCSDGb06hAAAB\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -226,12 +228,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3002/api/workgroup/join/{{workgroup_id}}",
+					"raw": "http://localhost:3003/api/workgroup/join/{{workgroup_id}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3002",
+					"port": "3003",
 					"path": [
 						"api",
 						"workgroup",
@@ -333,12 +335,23 @@
 		},
 		{
 			"name": "As_AO_Prove_FPL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": {{workflow_id}},\n    \"workstepId\": {{workstep_id}},\n    \"sig_ao\": {{AO_sig}}\n}",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"fpl\": {\n        \"ai\": \"MMMMMMM\",\n        \"fr\": \"F\",\n        \"tof\": \"M\",\n        \"noa\": \"MM\",\n        \"toa\": \"MMMM\",\n        \"wtc\": \"M\",\n        \"eandc\": {\n            \"rc_n_aae\": {\n                \"s\": \"MM\",\n                \"a\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\"\n            },\n            \"surveillance\": {\n                \"s\": \"M\",\n                \"ssr\": {\n                    \"mode_a_c\": {\n                        \"a\": \"MM\"\n                    },\n                    \"mode_s\": {\n                        \"a\": \"MMMMMMM\"\n                    }\n                },\n                \"ads\": {\n                    \"c\": {\n                        \"a\": \"MMMM\"\n                    },\n                    \"b\": {\n                        \"a\": \"MMMMMMMMMMMM\"\n                    }\n                }\n            }\n        },\n        \"t\": \"MMMM\",\n        \"da\": \"MMMM\",\n        \"cs\": \"MMMMM\",\n        \"cl\": \"MMMMM\",\n        \"r\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n        \"de\": \"MMMM\",\n        \"teet\": \"MMMM\",\n        \"ada\": \"MMMM\",\n        \"adas\": [\n            \"MMMM\",\n            \"MMMM\"\n        ],\n        \"oi\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n        \"e\": \"MMMMMM\",\n        \"pob\": \"MMMMM\",\n        \"er\": \"MMMM\",\n        \"se\": \"MMMM\",\n        \"j\": \"MMMMMMMMMM\",\n        \"d\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n        \"acm\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n        \"re\": \"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\",\n        \"pn\": \"MMMMMMMMMMMMMMMMMMM\"\n    },\n    \"sk\": {{AO_sk}}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -358,6 +371,102 @@
 						"sync",
 						"prove",
 						"fpl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_NM_Verify_FPL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": \"04e56a9c-d1d0-45e6-bb07-25c061488ae4\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/api/workflow/sync/verify/fpl",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"api",
+						"workflow",
+						"sync",
+						"verify",
+						"fpl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_NM_Prove_ACK",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": \"04e56a9c-d1d0-45e6-bb07-25c061488ae4\",\n    \"sk\": {{NM_sk}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/api/workflow/sync/prove/ack",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"api",
+						"workflow",
+						"sync",
+						"prove",
+						"ack"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "As_AO_Verify_ACK",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workgroupId\": \"{{workgroup_id}}\",\n    \"workflowId\": \"04e56a9c-d1d0-45e6-bb07-25c061488ae4\",\n    \"sk\": {{NM_sk}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/workflow/sync/verify/ack",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"workflow",
+						"sync",
+						"verify",
+						"ack"
 					]
 				}
 			},
@@ -446,6 +555,14 @@
 		},
 		{
 			"key": "AO_sig",
+			"value": ""
+		},
+		{
+			"key": "AO_sk",
+			"value": ""
+		},
+		{
+			"key": "NM_sk",
 			"value": ""
 		}
 	]
