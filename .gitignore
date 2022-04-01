@@ -2,3 +2,4 @@
 /utils
 /server/node_modules
 /server/baseline/privacy/circuits/artifacts
+/server/baseline/privacy/gnark/service/vendor
